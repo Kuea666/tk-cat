@@ -8,21 +8,24 @@ class GameElement(ABC):
 
     @abstractmethod
     def show(self):
-        pass
+        self.is_visible = True
+        self.canvas.itemconfigure(self.canvas_object_id, state="normal")
 
     @abstractmethod
     def hide(self):
-        pass
+        self.is_visible = False
+        self.canvas.itemconfigure(self.canvas_object_id, state="hidden")
 
     @abstractmethod
     def render(self):
-        pass
+        if self.is_visible:
+            self.canvas.coords(self.canvas_object_id, self.x, self.y)
 
     @abstractmethod
     def delete(self):
-        pass
+        self.canvas.delete(self.canvas_object_id)
 
-class GameCanvasElement(GameElement):
+class GameCanvasElement(GameElement) :
     def __init__(self, game_app, x=0, y=0):
         self.x = x
         self.y = y
@@ -34,21 +37,17 @@ class GameCanvasElement(GameElement):
         self.init_element()
 
         self.to_be_deleted = False
-
     def show(self):
-        self.is_visible = True
-        self.canvas.itemconfigure(self.canvas_object_id, state="normal")
+        return super().show()
 
     def hide(self):
-        self.is_visible = False
-        self.canvas.itemconfigure(self.canvas_object_id, state="hidden")
+        return super().hide()
 
     def render(self):
-        if self.is_visible:
-            self.canvas.coords(self.canvas_object_id, self.x, self.y)
+        return super().render()
 
     def delete(self):
-        self.canvas.delete(self.canvas_object_id)
+        return super().delete()
 
     def distance_to(self, element):
         return distance(self.x, self.y, element.x, element.y)
@@ -82,16 +81,18 @@ class Text(GameCanvasElement):
         
 
 class Sprite(GameCanvasElement):
-    def __init__(self, game_app, image_filename, x=0, y=0):
+    def __init__(self, game_app, image_filename, x=0, y=0,score=1):
         self.image_filename = image_filename
+        self.score = score
         super().__init__(game_app, x, y)
-
+        
     def init_canvas_object(self):
         self.photo_image = tk.PhotoImage(file=self.image_filename)
         self.canvas_object_id = self.canvas.create_image(
             self.x, 
             self.y,
             image=self.photo_image)
+    
 
 
 class GameApp(ttk.Frame): 
